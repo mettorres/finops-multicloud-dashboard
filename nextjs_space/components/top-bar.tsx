@@ -17,6 +17,7 @@ import { CloudFilter } from './cloud-filter';
 
 export function TopBar() {
   const [searchValue, setSearchValue] = useState('');
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
   return (
     <header className="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30">
@@ -37,7 +38,11 @@ export function TopBar() {
           <CloudFilter />
           <DateRangePicker />
           
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setFilterDialogOpen(!filterDialogOpen)}
+          >
             <Filter className="w-4 h-4 mr-2" />
             Filtros
           </Button>
@@ -85,7 +90,11 @@ export function TopBar() {
           </DropdownMenu>
 
           {/* Settings */}
-          <Button variant="ghost" size="sm">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => console.log('Settings clicked')}
+          >
             <Settings className="w-5 h-5" />
           </Button>
 

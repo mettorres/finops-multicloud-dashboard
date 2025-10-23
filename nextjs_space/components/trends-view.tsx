@@ -32,20 +32,20 @@ import {
 export function TrendsView() {
   const [loading, setLoading] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('6months');
+  const [trendData, setTrendData] = useState<any[]>([]);
 
   // Generate mock trend data
-  const generateTrendData = () => {
+  useEffect(() => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    return months?.map((month, index) => ({
+    const data = months?.map((month, index) => ({
       month,
       aws: 3000 + (index * 200) + Math.random() * 1000,
       azure: 2500 + (index * 150) + Math.random() * 800,
       gcp: 2000 + (index * 100) + Math.random() * 600,
       total: 7500 + (index * 450) + Math.random() * 1500
     }));
-  };
-
-  const trendData = generateTrendData();
+    setTrendData(data);
+  }, []);
   
   const forecastData = [
     { month: 'Jan 2024', actual: 8500, forecast: 8200, confidence: 95 },
@@ -88,9 +88,9 @@ export function TrendsView() {
     visible: { opacity: 1, y: 0 }
   };
 
-  const currentMonth = trendData[trendData?.length - 1];
-  const previousMonth = trendData[trendData?.length - 2];
-  const monthlyChange = ((currentMonth?.total - previousMonth?.total) / previousMonth?.total * 100);
+  const currentMonth = trendData[trendData?.length - 1] || { total: 0 };
+  const previousMonth = trendData[trendData?.length - 2] || { total: 1 };
+  const monthlyChange = previousMonth?.total ? ((currentMonth?.total - previousMonth?.total) / previousMonth?.total * 100) : 0;
   
   return (
     <DashboardLayout>

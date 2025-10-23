@@ -48,6 +48,27 @@ const statusConfig = {
 
 export function RecommendationsView() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+
+  const handleViewDetails = (recommendation: Recommendation) => {
+    setSelectedRecommendation(recommendation);
+    setDetailsDialogOpen(true);
+  };
+
+  const handleImplement = async (recommendationId: string) => {
+    // Update recommendation status to in_progress
+    setRecommendations(prev => 
+      prev?.map(r => 
+        r?.id === recommendationId 
+          ? { ...r, status: 'in_progress' } 
+          : r
+      )
+    );
+    
+    // In a real app, you would make an API call here
+    // await fetch(`/api/recommendations/${recommendationId}/implement`, { method: 'POST' });
+  };
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
 
@@ -326,13 +347,30 @@ export function RecommendationsView() {
                     </div>
                     
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleViewDetails(recommendation)}
+                      >
                         Ver detalhes
                       </Button>
                       {recommendation?.status === 'open' && (
-                        <Button size="sm">
+                        <Button 
+                          size="sm"
+                          onClick={() => handleImplement(recommendation?.id)}
+                        >
                           Implementar
                           <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      )}
+                      {recommendation?.status === 'in_progress' && (
+                        <Button 
+                          size="sm" 
+                          variant="default"
+                          disabled
+                        >
+                          <Clock className="w-4 h-4 mr-2" />
+                          Em andamento
                         </Button>
                       )}
                       {recommendation?.status === 'implemented' && (

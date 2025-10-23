@@ -66,11 +66,43 @@ export function IdleResourcesView() {
   const [resources, setResources] = useState<IdleResource[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [summary, setSummary] = useState({
     totalResources: 0,
     totalMonthlyCost: 0,
     totalPotentialSavings: 0
   });
+
+  // Export to CSV function
+  const handleExportCSV = () => {
+    const headers = ['Nome', 'Tipo', 'Cloud', 'Serviço', 'Região', 'CPU%', 'Memória%', 'Custo Mensal', 'Economia Potencial'];
+    const csvData = filteredResources?.map(r => [
+      r?.name,
+      r?.resourceType,
+      r?.cloud?.displayName,
+      r?.service?.displayName,
+      r?.region,
+      r?.utilizationCPU,
+      r?.utilizationMemory,
+      r?.monthlyCostCurrent,
+      r?.potentialSavings
+    ]);
+    
+    const csvContent = [
+      headers.join(','),
+      ...csvData?.map(row => row?.join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `recursos-ociosos-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
 
   useEffect(() => {
     fetchIdleResources();
@@ -310,12 +342,20 @@ export function IdleResourcesView() {
                     />
                   </div>
                   
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setFilterDialogOpen(true)}
+                  >
                     <Filter className="w-4 h-4 mr-2" />
                     Filtrar
                   </Button>
                   
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleExportCSV}
+                  >
                     <Download className="w-4 h-4 mr-2" />
                     Exportar
                   </Button>
