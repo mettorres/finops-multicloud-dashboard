@@ -333,7 +333,13 @@ export function ExecutiveDashboard() {
               </div>
 
               <div className="mt-4 pt-4 border-t">
-                <Button className="w-full" size="lg">
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  onClick={() => {
+                    alert('📋 Plano de Ação Completo\n\nEsta funcionalidade abrirá uma visualização detalhada com todas as ações prioritárias, cronogramas e responsáveis.');
+                  }}
+                >
                   Ver Plano de Ação Completo
                 </Button>
               </div>
@@ -532,7 +538,14 @@ export function ExecutiveDashboard() {
                   <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
                     Containers, Serverless, Automação
                   </p>
-                  <Button variant="outline" size="sm" className="mt-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-2"
+                    onClick={() => {
+                      alert('🗺️ Roadmap de Modernização\n\nEsta funcionalidade abrirá o roadmap completo com cronograma, etapas e tecnologias para modernização da infraestrutura cloud.');
+                    }}
+                  >
                     Ver Roadmap
                   </Button>
                 </div>

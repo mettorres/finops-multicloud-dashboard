@@ -53,11 +53,23 @@ export function TopBar() {
           {/* Notifications */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="relative">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="relative"
+                onClick={(e) => {
+                  // Dropdown handled by DropdownMenu component
+                  e.stopPropagation();
+                }}
+              >
                 <Bell className="w-5 h-5" />
                 <Badge 
                   variant="destructive" 
                   className="absolute -top-1 -right-1 w-2 h-2 p-0 text-xs"
+                  onClick={(e) => {
+                    // Badge click opens notification dropdown
+                    e.stopPropagation();
+                  }}
                 >
                   3
                 </Badge>
@@ -101,7 +113,15 @@ export function TopBar() {
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="gap-2"
+                onClick={(e) => {
+                  // Dropdown handled by DropdownMenu component
+                  e.stopPropagation();
+                }}
+              >
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                   <User className="w-4 h-4 text-white" />
                 </div>

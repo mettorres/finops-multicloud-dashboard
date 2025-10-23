@@ -214,7 +214,15 @@ export default function UploadPage() {
                     className="hidden"
                   />
                   
-                  <Button variant="outline" size="sm" type="button">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      document.getElementById('file-input')?.click();
+                    }}
+                  >
                     Escolher Arquivo
                   </Button>
                 </div>
@@ -327,9 +335,30 @@ export default function UploadPage() {
               <CardContent>
                 <Tabs defaultValue="aws" className="w-full">
                   <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="aws">AWS</TabsTrigger>
-                    <TabsTrigger value="azure">Azure</TabsTrigger>
-                    <TabsTrigger value="gcp">GCP</TabsTrigger>
+                    <TabsTrigger 
+                      value="aws"
+                      onClick={() => {
+                        // Tab switching handled by Tabs component
+                      }}
+                    >
+                      AWS
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="azure"
+                      onClick={() => {
+                        // Tab switching handled by Tabs component
+                      }}
+                    >
+                      Azure
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="gcp"
+                      onClick={() => {
+                        // Tab switching handled by Tabs component
+                      }}
+                    >
+                      GCP
+                    </TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="aws" className="space-y-4">

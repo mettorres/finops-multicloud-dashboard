@@ -382,7 +382,13 @@ export function ModernizationView() {
                     Nossa equipe pode ajudar na implementação dessas iniciativas com zero downtime
                   </p>
                 </div>
-                <Button size="lg" variant="secondary">
+                <Button 
+                  size="lg" 
+                  variant="secondary"
+                  onClick={() => {
+                    alert('👨‍💼 Contato com Especialista\n\nEsta funcionalidade abrirá um formulário para agendar uma consulta com nossa equipe de arquitetos cloud.\n\nEmail: especialistas@finops.com\nTelefone: +55 (11) 9999-9999');
+                  }}
+                >
                   Falar com Especialista
                 </Button>
               </div>

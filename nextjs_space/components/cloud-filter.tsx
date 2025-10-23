@@ -61,7 +61,15 @@ export function CloudFilter({ onChange, defaultSelected = [] }: CloudFilterProps
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="gap-2"
+          onClick={(e) => {
+            // Dropdown handled by DropdownMenu component
+            e.stopPropagation();
+          }}
+        >
           <Cloud className="w-4 h-4" />
           <span>Clouds</span>
           {selectedCount > 0 && (
