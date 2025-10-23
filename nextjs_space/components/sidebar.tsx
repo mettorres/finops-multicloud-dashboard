@@ -14,7 +14,11 @@ import {
   Settings,
   DollarSign,
   Activity,
-  Upload
+  Upload,
+  Briefcase,
+  Rocket,
+  Cpu,
+  Database
 } from 'lucide-react';
 
 const navigation = [
@@ -25,11 +29,18 @@ const navigation = [
     description: 'Visão consolidada multi-cloud'
   },
   {
+    name: 'Executive Dashboard',
+    href: '/executive',
+    icon: Briefcase,
+    description: 'Visão C-Level',
+    color: 'text-purple-600 dark:text-purple-400'
+  },
+  {
     name: 'Upload de Dados',
     href: '/upload',
     icon: Upload,
     description: 'Importar billing data',
-    color: 'text-purple-600 dark:text-purple-400'
+    color: 'text-indigo-600 dark:text-indigo-400'
   },
   {
     name: 'AWS',
@@ -51,6 +62,34 @@ const navigation = [
     icon: Cloud,
     description: 'Google Cloud Platform',
     color: 'text-green-600 dark:text-green-400'
+  },
+  {
+    name: 'Forecast',
+    href: '/forecast',
+    icon: TrendingUp,
+    description: 'Projeções de custos',
+    color: 'text-emerald-600 dark:text-emerald-400'
+  },
+  {
+    name: 'Métricas de Computação',
+    href: '/compute',
+    icon: Cpu,
+    description: 'CPU, RAM, Rede',
+    color: 'text-cyan-600 dark:text-cyan-400'
+  },
+  {
+    name: 'Métricas de Storage',
+    href: '/storage',
+    icon: Database,
+    description: 'S3, Blob, Cloud Storage',
+    color: 'text-pink-600 dark:text-pink-400'
+  },
+  {
+    name: 'Modernização',
+    href: '/modernization',
+    icon: Rocket,
+    description: 'EC2→EKS, VMs→Serverless',
+    color: 'text-purple-600 dark:text-purple-400'
   },
   {
     name: 'Recursos Ociosos',
