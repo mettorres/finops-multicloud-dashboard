@@ -1,0 +1,189 @@
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/finops_dashboard/nextjs_space/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model CloudProvider {
+  id          String  @id @default(cuid())
+  name        String  @unique // AWS, Azure, GCP
+  displayName String
+  color       String
+  icon        String
+  active      Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  services      CloudService[]
+  costs         Cost[]
+  resources     Resource[]
+  recommendations Recommendation[]
+  forecasts     Forecast[]
+  savings       Savings[]
+
+  @@map("cloud_providers")
+}
+
+model CloudService {
+  id            String  @id @default(cuid())
+  cloudId       String
+  name          String  // ec2, rds, lambda, etc
+  displayName   String
+  category      String  // compute, storage, database, network
+  icon          String
+  active        Boolean @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  cloud         CloudProvider @relation(fields: [cloudId], references: [id])
+  costs         Cost[]
+  resources     Resource[]
+  recommendations Recommendation[]
+  forecasts     Forecast[]
+
+  @@unique([cloudId, name])
+  @@map("cloud_services")
+}
+
+model Cost {
+  id          String   @id @default(cuid())
+  cloudId     String
+  serviceId   String?
+  region      String
+  date        DateTime
+  costUSD     Decimal  @db.Decimal(12, 2)
+  usageHours  Decimal? @db.Decimal(10, 2)
+  usageUnit   String?
+  resourceId  String?
+  accountId   String
+  projectId   String?
+  tags        Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cloud       CloudProvider @relation(fields: [cloudId], references: [id])
+  service     CloudService? @relation(fields: [serviceId], references: [id])
+  resource    Resource?     @relation(fields: [resourceId], references: [id])
+
+  @@index([cloudId, date])
+  @@index([serviceId, date])
+  @@index([region, date])
+  @@map("costs")
+}
+
+model Resource {
+  id            String   @id @default(cuid())
+  cloudId       String
+  serviceId     String
+  name          String
+  resourceType  String   // instance, volume, database, etc
+  region        String
+  accountId     String
+  projectId     String?
+  status        String   // running, stopped, idle, optimized
+  sizeCurrent   String?  // t3.micro, Standard_D2s_v3, etc
+  sizeRecommended String?
+  utilizationCPU    Decimal? @db.Decimal(5, 2)
+  utilizationMemory Decimal? @db.Decimal(5, 2)
+  utilizationNetwork Decimal? @db.Decimal(5, 2)
+  monthlyCostCurrent Decimal  @db.Decimal(10, 2)
+  monthlyCostOptimized Decimal? @db.Decimal(10, 2)
+  potentialSavings  Decimal? @db.Decimal(10, 2)
+  lastSeen      DateTime
+  tags          Json?
+  isIdle        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  cloud         CloudProvider @relation(fields: [cloudId], references: [id])
+  service       CloudService  @relation(fields: [serviceId], references: [id])
+  costs         Cost[]
+  recommendations Recommendation[]
+
+  @@index([cloudId, status])
+  @@index([serviceId, isIdle])
+  @@map("resources")
+}
+
+model Recommendation {
+  id            String   @id @default(cuid())
+  cloudId       String
+  serviceId     String?
+  resourceId    String?
+  type          String   // rightsizing, reserved_instances, savings_plans, terminate_idle
+  priority      String   // high, medium, low
+  title         String
+  description   String
+  impact        String   // high, medium, low
+  effort        String   // easy, medium, complex
+  category      String   // cost_optimization, performance, security
+  currentCost   Decimal  @db.Decimal(10, 2)
+  potentialSaving Decimal @db.Decimal(10, 2)
+  savingPercent Decimal  @db.Decimal(5, 2)
+  implementationSteps Json
+  riskLevel     String   // low, medium, high
+  timeframe     String   // immediate, 1-week, 1-month
+  status        String   @default("open") // open, in_progress, implemented, dismissed
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  cloud         CloudProvider @relation(fields: [cloudId], references: [id])
+  service       CloudService? @relation(fields: [serviceId], references: [id])
+  resource      Resource?     @relation(fields: [resourceId], references: [id])
+
+  @@index([cloudId, status])
+  @@index([type, priority])
+  @@map("recommendations")
+}
+
+model Forecast {
+  id            String   @id @default(cuid())
+  cloudId       String
+  serviceId     String?
+  region        String?
+  forecastDate  DateTime
+  predictedCost Decimal  @db.Decimal(12, 2)
+  confidence    Decimal  @db.Decimal(5, 2)
+  method        String   // linear, exponential, ml_model
+  baselineDate  DateTime
+  trends        Json?
+  seasonality   Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  cloud         CloudProvider @relation(fields: [cloudId], references: [id])
+  service       CloudService? @relation(fields: [serviceId], references: [id])
+
+  @@index([cloudId, forecastDate])
+  @@index([serviceId, forecastDate])
+  @@map("forecasts")
+}
+
+model Savings {
+  id            String   @id @default(cuid())
+  cloudId       String
+  type          String   // reserved_instances, savings_plans, spot_instances, rightsizing
+  category      String   // compute, storage, database
+  description   String
+  originalCost  Decimal  @db.Decimal(10, 2)
+  optimizedCost Decimal  @db.Decimal(10, 2)
+  savingsAmount Decimal  @db.Decimal(10, 2)
+  savingsPercent Decimal @db.Decimal(5, 2)
+  period        String   // monthly, quarterly, yearly
+  startDate     DateTime
+  endDate       DateTime?
+  status        String   // active, expired, pending
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  cloud         CloudProvider @relation(fields: [cloudId], references: [id])
+
+  @@index([cloudId, type])
+  @@index([startDate, status])
+  @@map("savings")
+}
