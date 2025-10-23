@@ -13,7 +13,8 @@ import {
   GitCompare,
   Settings,
   DollarSign,
-  Activity
+  Activity,
+  Upload
 } from 'lucide-react';
 
 const navigation = [
@@ -22,6 +23,13 @@ const navigation = [
     href: '/',
     icon: BarChart3,
     description: 'Visão consolidada multi-cloud'
+  },
+  {
+    name: 'Upload de Dados',
+    href: '/upload',
+    icon: Upload,
+    description: 'Importar billing data',
+    color: 'text-purple-600 dark:text-purple-400'
   },
   {
     name: 'AWS',
