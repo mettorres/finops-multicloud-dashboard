@@ -1,526 +1,579 @@
-
-# 📊 FinOps Dashboard - Documentação do Código
+# 📝 Documentação do Código do Dashboard FinOps
 
 ## 🎯 Visão Geral
 
-Dashboard completo de FinOps desenvolvido em **Next.js 14** com **TypeScript**, **Prisma**, **PostgreSQL** e **Recharts** para visualizações avançadas.
+Este dashboard é uma aplicação **Next.js 14** com **TypeScript**, **Prisma ORM** e **PostgreSQL**.
 
----
+## 🏗️ Arquitetura
 
-## 📁 Estrutura Principal
+### Stack Tecnológico
 
 ```
-nextjs_space/
-├── app/                          # Rotas e páginas do Next.js 14
-│   ├── page.tsx                  # Dashboard Principal
-│   ├── executive/page.tsx        # Dashboard Executivo
-│   ├── forecast/page.tsx         # Projeções de Custos
-│   ├── compute/page.tsx          # Métricas de Computação
-│   ├── storage/page.tsx          # Métricas de Storage
-│   ├── modernization/page.tsx    # Recomendações de Modernização
-│   ├── upload/page.tsx           # Upload de CSV
-│   ├── aws/page.tsx              # Visão específica AWS
-│   ├── azure/page.tsx            # Visão específica Azure
-│   ├── gcp/page.tsx              # Visão específica GCP
-│   └── api/                      # API Routes (Backend)
-│       ├── dashboard/route.ts    # Dados consolidados do dashboard
-│       ├── forecast/route.ts     # Forecast e projeções
-│       ├── compute-metrics/route.ts  # Métricas de CPU/RAM/Rede
-│       ├── storage-metrics/route.ts  # Métricas de S3/Blob/Storage
-│       ├── modernization/route.ts    # Recomendações estratégicas
-│       └── upload/route.ts       # Processamento de CSV
-│
-├── components/                   # Componentes React
-│   ├── dashboard-view.tsx        # Componente principal do dashboard
-│   ├── executive-dashboard.tsx   # Dashboard C-Level
-│   ├── forecast-view.tsx         # Visualização de projeções
-│   ├── compute-metrics-view.tsx  # Análise de computação
-│   ├── storage-metrics-view.tsx  # Análise de storage
-│   ├── modernization-view.tsx    # Roadmap de modernização
-│   ├── sidebar.tsx               # Menu lateral
-│   ├── top-bar.tsx               # Barra superior
-│   ├── dashboard-layout.tsx      # Layout principal
-│   ├── metric-card.tsx           # Cards de métricas
-│   ├── chart-wrapper.tsx         # Wrapper para gráficos
-│   └── ui/                       # Componentes UI (shadcn/ui)
-│
-├── lib/                          # Utilitários e configurações
-│   ├── db.ts                     # Cliente Prisma
-│   ├── types.ts                  # Tipos TypeScript
-│   └── utils.ts                  # Funções auxiliares
-│
-├── prisma/                       # Banco de Dados
-│   └── schema.prisma             # Schema do PostgreSQL
-│
-└── scripts/                      # Scripts auxiliares
-    └── seed.ts                   # Popular BD com dados demo
+Frontend:  Next.js 14 + React 18 + TypeScript + Tailwind CSS
+Backend:   Next.js API Routes (serverless)
+Database:  PostgreSQL + Prisma ORM
+Charts:    Recharts + Plotly
+UI:        ShadcN UI + Radix UI
 ```
 
----
+## 📂 Arquivos Essenciais para Rodar
 
-## 🔑 Principais Componentes
+### 1. `package.json` - Dependências e Scripts
 
-### 1. **Dashboard Principal** (`components/dashboard-view.tsx`)
-
-**Funcionalidades:**
-- Visão consolidada multi-cloud (AWS, Azure, GCP)
-- Métricas-chave: Custo Total, Savings, Recursos Ociosos, Recomendações
-- Gráficos: Tendência de custos, Distribuição por cloud, Top serviços
-- Forecast accuracy circular
-
-**APIs utilizadas:**
-```typescript
-GET /api/dashboard
-// Retorna: summary, cloudData, trendData, topServices
-```
-
----
-
-### 2. **Executive Dashboard** (`components/executive-dashboard.tsx`)
-
-**Funcionalidades:**
-- Visão estratégica para C-Level
-- Índice de Eficiência, Potencial de Economia
-- Forecast vs Real (gráfico de área)
-- Oportunidades de economia categorizadas
-- Utilização de infraestrutura (CPU, RAM, Rede)
-
-**APIs utilizadas:**
-```typescript
-GET /api/dashboard
-GET /api/forecast?horizon=90
-GET /api/compute-metrics
-```
-
----
-
-### 3. **Forecast View** (`components/forecast-view.tsx`)
-
-**Funcionalidades:**
-- Projeções para 30, 60 e 90 dias
-- Histórico vs Forecast (gráficos de área)
-- Cenários: Otimista (-30%), Realista, Pessimista (+30%)
-- Tendência de crescimento
-
-**API utilizada:**
-```typescript
-GET /api/forecast?horizon=90
-// Retorna: historical, forecast, trends, scenarios
-```
-
-**Algoritmo de Forecast:**
-- Regressão linear simples
-- Adiciona crescimento de 5% no horizonte
-- Confiança diminui ao longo do tempo (95% → 80%)
-
----
-
-### 4. **Compute Metrics** (`components/compute-metrics-view.tsx`)
-
-**Funcionalidades:**
-- Análise de EC2, VMs, Compute Engine
-- Utilização: CPU, Memória, Rede
-- Categorias: Subutilizado (<20%), Otimizado (20-70%), Sobrecarregado (>70%)
-- Top 10 recursos com maior desperdício
-- Potencial de Rightsizing
-
-**API utilizada:**
-```typescript
-GET /api/compute-metrics
-// Retorna: summary, categories, topWasters, performanceByCloud
-```
-
----
-
-### 5. **Storage Metrics** (`components/storage-metrics-view.tsx`)
-
-**Funcionalidades:**
-- Análise de S3, Azure Blob, Cloud Storage
-- Crescimento mês a mês
-- Distribuição por classe de storage (Standard, IA, Glacier)
-- Oportunidades de otimização:
-  - Lifecycle policies (30% economia)
-  - Remoção de snapshots antigos (15% economia)
-  - Compressão de dados (20% economia)
-
-**API utilizada:**
-```typescript
-GET /api/storage-metrics
-// Retorna: summary, storageByClass, storageByCloud, optimizations
-```
-
----
-
-### 6. **Modernization View** (`components/modernization-view.tsx`)
-
-**Funcionalidades:**
-- Recomendações estratégicas de modernização
-- Exemplos:
-  - EC2 → EKS/ECS (containers)
-  - VMs → Azure Functions (serverless)
-  - Monolith → Microservices
-- ROI detalhado (3 anos)
-- Arquitetura atual vs proposta
-- Business case completo
-
-**API utilizada:**
-```typescript
-GET /api/modernization
-// Retorna: recommendations, maturityScore
-```
-
----
-
-## 🗄️ Banco de Dados (Prisma Schema)
-
-### Principais Tabelas:
-
-1. **CloudProvider** - Clouds configurados (AWS, Azure, GCP)
-2. **CloudService** - Serviços (EC2, S3, Azure VM, etc)
-3. **Cost** - Registros de custos diários
-4. **Resource** - Recursos (instâncias, volumes, etc)
-5. **Recommendation** - Recomendações de otimização
-6. **Savings** - Economias realizadas
-
-### Relacionamentos:
-```
-CloudProvider (1) → (N) CloudService
-CloudProvider (1) → (N) Cost
-CloudService (1) → (N) Cost
-CloudProvider (1) → (N) Resource
-Resource (1) → (N) Recommendation
-```
-
----
-
-## 🎨 Visualizações (Recharts)
-
-### Tipos de Gráficos Utilizados:
-
-1. **AreaChart** - Tendências e forecast
-2. **BarChart** - Top serviços, categorias
-3. **PieChart** - Distribuição por cloud, storage classes
-4. **LineChart** - Cenários de projeção
-
-### Cores e Temas:
-- **AWS**: #FF9900 (laranja)
-- **Azure**: #0078D4 (azul)
-- **GCP**: #4285F4 (azul claro)
-- Dark mode completo com `next-themes`
-
----
-
-## 📤 Upload de CSV
-
-### Formato Esperado:
-
-**Arquivo CSV:**
-```csv
-date,cloud,service,cost,category,region,usageUnit
-2024-01-01,aws,EC2,1250.50,compute,us-east-1,Hours
-2024-01-01,aws,S3,350.25,storage,us-east-1,GB-Month
-```
-
-**Campos obrigatórios:**
-- `date` - Data (YYYY-MM-DD)
-- `cloud` - aws | azure | gcp
-- `service` - Nome do serviço
-- `cost` - Custo em USD
-- `category` - compute | storage | network | database | other
-
-### API de Upload:
-
-```typescript
-POST /api/upload
-Content-Type: multipart/form-data
-
-{
-  file: [CSV File],
-  cloud: "aws" | "azure" | "gcp"
-}
-
-// Retorna:
-{
-  success: true,
-  recordsImported: 1500,
-  summary: { ... }
-}
-```
-
----
-
-## 🚀 Como Rodar Localmente
-
-### 1. Instalar dependências:
-```bash
-cd nextjs_space
-yarn install
-```
-
-### 2. Configurar banco de dados:
-```bash
-# Editar .env com suas credenciais PostgreSQL
-# Depois rodar:
-npx prisma generate
-npx prisma db push
-```
-
-### 3. Popular com dados demo (opcional):
-```bash
-npx prisma db seed
-```
-
-### 4. Rodar em desenvolvimento:
-```bash
-yarn dev
-# Acesse: http://localhost:3000
-```
-
-### 5. Build para produção:
-```bash
-yarn build
-yarn start
-```
-
----
-
-## 🔧 Tecnologias Utilizadas
-
-| Tecnologia | Versão | Uso |
-|-----------|--------|-----|
-| Next.js | 14.2.28 | Framework React com SSR |
-| TypeScript | 5.2.2 | Type safety |
-| Prisma | 6.7.0 | ORM para PostgreSQL |
-| Recharts | 2.15.3 | Gráficos e visualizações |
-| Tailwind CSS | 3.3.3 | Estilização |
-| shadcn/ui | - | Componentes UI |
-| Framer Motion | 10.18.0 | Animações |
-| date-fns | 3.6.0 | Manipulação de datas |
-
----
-
-## 📊 APIs Disponíveis
-
-### `/api/dashboard`
-Retorna dados consolidados do dashboard principal.
-
-**Query params:**
-- `clouds` - Filtrar por clouds (ex: `?clouds=aws,azure`)
-- `from` - Data inicial (ISO 8601)
-- `to` - Data final (ISO 8601)
-
-**Response:**
 ```json
 {
-  "summary": {
-    "totalCost": "12500.00",
-    "totalSavings": "2300.00",
-    "savingsPercent": "18.4",
-    "idleResourcesCount": 45,
-    "recommendationsCount": 12,
-    "forecastAccuracy": "85.2"
-  },
-  "cloudData": [...],
-  "trendData": [...],
-  "topServices": [...]
-}
-```
-
----
-
-### `/api/forecast`
-Gera projeções de custos baseadas em tendências históricas.
-
-**Query params:**
-- `horizon` - Dias de projeção (padrão: 90)
-- `clouds` - Filtrar por clouds
-
-**Response:**
-```json
-{
-  "historical": [...],
-  "forecast": [...],
-  "trends": {
-    "currentDailyAverage": "420.50",
-    "trendPercent": "12.3",
-    "projectedMonthlyCost": "12615.00"
-  },
-  "scenarios": {
-    "optimistic": [...],
-    "realistic": [...],
-    "pessimistic": [...]
+  "scripts": {
+    "dev": "next dev",           // Modo desenvolvimento
+    "build": "next build",        // Compilar para produção
+    "start": "next start",        // Rodar em produção
+    "lint": "next lint"           // Verificar código
   }
 }
 ```
 
----
+**Principais dependências:**
+- `next`: Framework React
+- `react`: Biblioteca de UI
+- `@prisma/client`: ORM para banco
+- `recharts`: Gráficos
+- `tailwindcss`: Estilos
 
-### `/api/compute-metrics`
-Análise de recursos de computação.
+### 2. `next.config.js` - Configuração do Next.js
 
-**Response:**
-```json
-{
-  "summary": {
-    "totalResources": 120,
-    "totalCurrentCost": "8500.00",
-    "totalSavings": "1200.00",
-    "avgUtilization": {
-      "cpu": "35.2",
-      "memory": "42.8"
-    }
+```javascript
+const nextConfig = {
+  distDir: '.next',              // Pasta de build
+  output: 'standalone',          // Modo standalone para deploy
+  eslint: {
+    ignoreDuringBuilds: true,    // Ignora erros de lint no build
   },
-  "categories": {
-    "underutilized": {
-      "count": 45,
-      "potentialSavings": "900.00"
-    },
-    "rightSized": { "count": 60 },
-    "overutilized": { "count": 15 }
+  images: { 
+    unoptimized: true            // Imagens não otimizadas
   },
-  "topWasters": [...]
+};
+```
+
+### 3. `app/layout.tsx` - Layout Principal
+
+```typescript
+// Este é o layout raiz da aplicação
+// Todos os componentes são renderizados dentro dele
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ThemeProvider>  {/* Suporte a tema escuro/claro */}
+          {children}
+          <Toaster />      {/* Notificações toast */}
+        </ThemeProvider>
+      </body>
+    </html>
+  );
 }
 ```
 
----
+**O que faz:**
+- Define estrutura HTML base
+- Importa fontes (Inter)
+- Configura tema claro/escuro
+- Adiciona sistema de notificações
 
-### `/api/storage-metrics`
-Análise de custos de armazenamento.
+### 4. `app/page.tsx` - Página Inicial
 
-**Response:**
-```json
-{
-  "summary": {
-    "totalCost": "4200.00",
-    "growthPercent": "15.2"
-  },
-  "storageByClass": [
-    { "class": "Standard", "cost": "2100.00", "percent": "50.0" },
-    { "class": "IA", "cost": "1050.00", "percent": "25.0" }
+```typescript
+import { DashboardView } from '@/components/dashboard-view';
+
+export default function HomePage() {
+  return <DashboardView />;
+}
+```
+
+**O que faz:**
+- Renderiza o dashboard principal
+- É a rota `/` do site
+
+### 5. `lib/db.ts` - Conexão com Banco de Dados
+
+```typescript
+import { PrismaClient } from '@prisma/client'
+
+// Singleton pattern para evitar múltiplas conexões
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+}
+
+export const prisma = globalForPrisma.prisma ?? new PrismaClient()
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma
+}
+```
+
+**O que faz:**
+- Cria instância única do Prisma
+- Reutiliza conexão em desenvolvimento
+- Evita abrir múltiplas conexões com PostgreSQL
+
+### 6. `prisma/schema.prisma` - Schema do Banco
+
+```prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Exemplo de model
+model CloudProvider {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  displayName String
+  costs       Cost[]
+  
+  @@map("cloud_providers")
+}
+```
+
+**O que faz:**
+- Define estrutura das tabelas
+- Cria relacionamentos entre dados
+- Gera TypeScript types automáticos
+
+## 🔄 Fluxo de Funcionamento
+
+### 1. Inicialização
+
+```
+1. Next.js lê next.config.js
+2. Carrega app/layout.tsx (layout global)
+3. Renderiza app/page.tsx (página inicial)
+4. Prisma conecta ao PostgreSQL via DATABASE_URL
+```
+
+### 2. Requisição de Dados
+
+```
+Component → API Route → Prisma → PostgreSQL → Response
+```
+
+Exemplo:
+
+```typescript
+// No componente (frontend)
+const response = await fetch('/api/dashboard');
+const data = await response.json();
+
+// Na API route (backend)
+// app/api/dashboard/route.ts
+export async function GET() {
+  const costs = await prisma.cost.findMany();
+  return Response.json(costs);
+}
+```
+
+### 3. Renderização
+
+```
+Server Side (SSR):
+  - Next.js renderiza HTML no servidor
+  - Envia HTML pronto para o navegador
+  - Cliente faz hydration (adiciona interatividade)
+
+Client Side:
+  - React gerencia estado e re-renderiza
+  - Fetches adicionais via API routes
+```
+
+## 🧩 Componentes Principais
+
+### DashboardLayout
+
+```typescript
+// components/dashboard-layout.tsx
+export function DashboardLayout({ children }) {
+  return (
+    <div className="min-h-screen">
+      <Sidebar />              {/* Menu lateral */}
+      <div className="ml-64">  {/* Margem para sidebar */}
+        <TopBar />             {/* Barra superior */}
+        <main>
+          {children}           {/* Conteúdo da página */}
+        </main>
+      </div>
+    </div>
+  );
+}
+```
+
+### Sidebar
+
+```typescript
+// components/sidebar.tsx
+export function Sidebar() {
+  return (
+    <aside className="fixed w-64 h-screen">
+      <nav>
+        <Link href="/">Dashboard</Link>
+        <Link href="/executive">Executivo</Link>
+        <Link href="/forecast">Previsões</Link>
+        {/* ... mais links */}
+      </nav>
+    </aside>
+  );
+}
+```
+
+## 🔌 APIs do Backend
+
+### Estrutura de API Route
+
+```typescript
+// app/api/dashboard/route.ts
+import { prisma } from '@/lib/db';
+
+// GET /api/dashboard
+export async function GET(request: Request) {
+  try {
+    // Buscar dados do banco
+    const data = await prisma.cost.findMany({
+      where: { /* filtros */ },
+      orderBy: { date: 'desc' }
+    });
+    
+    // Retornar JSON
+    return Response.json(data);
+  } catch (error) {
+    return Response.json(
+      { error: 'Erro ao buscar dados' },
+      { status: 500 }
+    );
+  }
+}
+
+// POST /api/dashboard
+export async function POST(request: Request) {
+  const body = await request.json();
+  
+  // Criar no banco
+  const newCost = await prisma.cost.create({
+    data: body
+  });
+  
+  return Response.json(newCost);
+}
+```
+
+### APIs Disponíveis
+
+```
+GET  /api/dashboard          - Dashboard principal
+GET  /api/executive          - KPIs executivos
+GET  /api/forecast           - Previsões
+GET  /api/recommendations    - Recomendações
+GET  /api/compute-metrics    - Métricas de computação
+GET  /api/storage-metrics    - Métricas de storage
+POST /api/upload             - Upload de CSV
+```
+
+## 💾 Modelos de Dados (Prisma)
+
+### Principais Models
+
+```prisma
+// Cloud Provider (AWS, Azure, GCP)
+model CloudProvider {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  costs       Cost[]
+}
+
+// Custos
+model Cost {
+  id       String   @id
+  cloudId  String
+  costUSD  Decimal
+  date     DateTime
+  
+  cloud    CloudProvider @relation(fields: [cloudId], references: [id])
+}
+
+// Recursos
+model Resource {
+  id                    String
+  name                  String
+  monthlyCostCurrent    Decimal
+  potentialSavings      Decimal
+}
+
+// Recomendações
+model Recommendation {
+  id              String
+  title           String
+  potentialSaving Decimal
+  priority        String
+}
+```
+
+## 🎨 Sistema de Estilos (Tailwind)
+
+### Configuração
+
+```typescript
+// tailwind.config.ts
+export default {
+  content: [
+    './app/**/*.{js,ts,jsx,tsx}',
+    './components/**/*.{js,ts,jsx,tsx}',
   ],
-  "optimizations": [...]
-}
+  theme: {
+    extend: {
+      colors: {
+        // Cores personalizadas
+      },
+    },
+  },
+};
 ```
 
----
+### Classes Comuns Usadas
 
-### `/api/modernization`
-Recomendações de modernização cloud.
-
-**Response:**
-```json
-{
-  "summary": {
-    "totalPotentialSavings": "3500.00",
-    "totalRecommendations": 8
-  },
-  "maturityScore": {
-    "current": 65,
-    "target": 85,
-    "areas": {
-      "containerization": 45,
-      "serverless": 60,
-      "automation": 70
-    }
-  },
-  "recommendations": [
-    {
-      "id": "...",
-      "title": "Migrar EC2 para EKS",
-      "currentArchitecture": "EC2 Auto Scaling Groups",
-      "proposedArchitecture": "Amazon EKS com Fargate",
-      "monthlySavings": "1200.00",
-      "roi": { "year1Savings": "14400.00" },
-      "businessBenefits": [...],
-      "risks": [...]
-    }
-  ]
-}
-```
-
----
-
-## 🎯 KPIs e Métricas
-
-### Métricas Principais:
-1. **Total Cost** - Custo total consolidado
-2. **Savings Percent** - % de economia realizada
-3. **Idle Resources** - Recursos sem uso há 14+ dias
-4. **Utilization** - CPU/RAM/Network average
-5. **Forecast Accuracy** - Precisão das projeções
-6. **Growth Rate** - Taxa de crescimento mensal
-7. **Cost per Cloud** - Distribuição por provedor
-8. **Top Services** - Serviços com maior custo
-
-### Categorização de Recursos:
-- **Subutilizado**: CPU < 20% → Rightsizing
-- **Otimizado**: CPU 20-70% → Manter
-- **Sobrecarregado**: CPU > 70% → Upgrade
-
----
-
-## 🎨 Design System
-
-### Cores Principais:
 ```css
-/* Blues */
---blue-500: #3b82f6
---blue-600: #2563eb
+/* Layout */
+min-h-screen          /* Altura mínima da tela */
+flex, flex-col        /* Flexbox */
+grid, grid-cols-3     /* Grid */
 
-/* Greens */
---green-500: #10b981
---green-600: #059669
+/* Espaçamento */
+p-6, px-4, py-2       /* Padding */
+m-4, mx-auto, my-2    /* Margin */
+gap-4, space-x-2      /* Gaps */
 
-/* Reds */
---red-500: #ef4444
---red-600: #dc2626
+/* Cores */
+bg-white              /* Background */
+text-gray-900         /* Texto */
+border-gray-200       /* Bordas */
 
-/* Purples */
---purple-500: #8b5cf6
---purple-600: #7c3aed
+/* Responsivo */
+sm:w-full             /* Mobile */
+md:w-1/2              /* Tablet */
+lg:w-1/3              /* Desktop */
 ```
 
-### Gradientes:
-- Dashboard: `from-slate-50 via-blue-50 to-indigo-100`
-- Sidebar: `from-slate-50 to-slate-100`
-- Buttons: `from-blue-500 to-purple-600`
+## 🚀 Como o Build Funciona
+
+### 1. Processo de Build
+
+```bash
+yarn build
+```
+
+Executa:
+
+```
+1. TypeScript Compilation (tsc)
+   - Verifica tipos
+   - Compila .ts para .js
+
+2. Next.js Build
+   - Otimiza código
+   - Gera páginas estáticas
+   - Cria chunks de JavaScript
+   - Otimiza imagens
+
+3. Prisma Generate
+   - Gera cliente Prisma
+   - Cria tipos TypeScript
+
+Output: pasta .next/ com app pronta
+```
+
+### 2. Estrutura do Build
+
+```
+.next/
+├── server/           # Código do servidor
+├── static/           # Assets estáticos
+├── cache/            # Cache de build
+└── standalone/       # Versão standalone
+```
+
+### 3. Deploy em Produção
+
+```bash
+# Opção 1: Usando yarn start
+yarn build
+yarn start
+
+# Opção 2: Usando standalone
+node .next/standalone/server.js
+```
+
+## 🔐 Variáveis de Ambiente
+
+### Obrigatórias
+
+```bash
+# .env
+DATABASE_URL="postgresql://user:pass@localhost:5432/db"
+NEXTAUTH_URL="http://localhost:3000"
+```
+
+### Como São Usadas
+
+```typescript
+// Em qualquer lugar do código
+const dbUrl = process.env.DATABASE_URL;
+
+// Prisma lê automaticamente
+// Next.js expõe apenas NEXT_PUBLIC_* no cliente
+```
+
+## 🧪 Como Testar
+
+### Rodar Localmente
+
+```bash
+# 1. Instalar
+cd nextjs_space
+yarn install
+
+# 2. Configurar banco
+yarn prisma generate
+yarn prisma db push
+
+# 3. Rodar
+yarn dev
+```
+
+### Acessar
+
+- Dashboard: http://localhost:3000
+- API: http://localhost:3000/api/dashboard
+
+## 📊 Como os Gráficos Funcionam
+
+### Recharts (Biblioteca Principal)
+
+```typescript
+import { LineChart, Line, XAxis, YAxis } from 'recharts';
+
+export function CostChart({ data }) {
+  return (
+    <LineChart data={data} width={600} height={300}>
+      <XAxis dataKey="date" />
+      <YAxis />
+      <Line dataKey="cost" stroke="#8884d8" />
+    </LineChart>
+  );
+}
+```
+
+**Fluxo:**
+1. Buscar dados da API
+2. Formatar dados para Recharts
+3. Passar para componente de gráfico
+4. Recharts renderiza SVG
+
+## 🔄 Hot Reload em Desenvolvimento
+
+Quando você salva um arquivo:
+
+```
+1. Next.js detecta mudança
+2. Recompila apenas o arquivo alterado
+3. Envia update via WebSocket
+4. Browser atualiza sem refresh
+```
+
+## 🐛 Debug e Logs
+
+### No Terminal
+
+```bash
+# Modo desenvolvimento mostra logs detalhados
+yarn dev
+
+# Logs aparecerão aqui
+[info] compiling /
+[info] compiled successfully
+```
+
+### No Browser
+
+```javascript
+// Use console.log para debug
+console.log('Dados recebidos:', data);
+
+// Ou debugger
+debugger; // Pausa execução
+```
+
+## 📦 Como Adicionar Nova Funcionalidade
+
+### Exemplo: Nova Página
+
+```typescript
+// 1. Criar página
+// app/nova-pagina/page.tsx
+export default function NovaPagina() {
+  return <div>Conteúdo</div>;
+}
+
+// 2. Adicionar link no Sidebar
+// components/sidebar.tsx
+<Link href="/nova-pagina">Nova Página</Link>
+
+// 3. (Opcional) Criar API
+// app/api/nova-pagina/route.ts
+export async function GET() {
+  return Response.json({ data: 'ok' });
+}
+```
+
+## 🎓 Conceitos Importantes
+
+### Server Components vs Client Components
+
+```typescript
+// Server Component (padrão)
+// Roda no servidor, não tem interatividade
+export default function ServerComp() {
+  const data = await fetchData(); // OK
+  return <div>{data}</div>;
+}
+
+// Client Component
+// Roda no cliente, tem estado e eventos
+'use client';
+export default function ClientComp() {
+  const [count, setCount] = useState(0); // OK
+  return <button onClick={() => setCount(count + 1)}>
+    {count}
+  </button>;
+}
+```
+
+### Hydration
+
+```
+1. Servidor gera HTML estático
+2. Browser recebe e exibe HTML
+3. JavaScript carrega
+4. React "hidrata" HTML (adiciona eventos)
+5. Página fica interativa
+```
+
+## 🔗 Recursos Úteis
+
+- [Next.js Docs](https://nextjs.org/docs)
+- [Prisma Docs](https://www.prisma.io/docs)
+- [Tailwind Docs](https://tailwindcss.com/docs)
+- [React Docs](https://react.dev)
 
 ---
 
-## 📝 Notas Importantes
-
-1. **Performance**: Dados são consultados via API Routes (Server-Side)
-2. **Reatividade**: `useEffect` + `fetch` para dados em tempo real
-3. **Type Safety**: TypeScript completo em todo o projeto
-4. **Acessibilidade**: Componentes shadcn/ui são accessibility-first
-5. **Responsivo**: Mobile-first com Tailwind CSS
-
----
-
-## 🔐 Segurança
-
-- Validação de CSV no backend
-- Sanitização de inputs
-- Prisma previne SQL injection
-- Variáveis de ambiente para credenciais
-- CORS configurado
-
----
-
-## 📈 Roadmap Futuro
-
-- [ ] Integração com APIs nativas AWS/Azure/GCP
-- [ ] Alertas em tempo real (WebSockets)
-- [ ] Exports em PDF/Excel
-- [ ] Multi-tenancy (usuários/empresas)
-- [ ] ML para previsões avançadas
-- [ ] Integração Slack/Teams
-- [ ] Audit trail completo
-
----
-
-## 📞 Suporte
-
-Para dúvidas ou sugestões, entre em contato ou abra uma issue no repositório.
-
-**Desenvolvido com ❤️ para FinOps profissionais**
+**Este documento explica como o dashboard funciona internamente**
